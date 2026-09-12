@@ -528,5 +528,5 @@ appropriately.
 ## See also
 
 - `architecture.md` — how the pieces fit together.
-- `deploy-spec.md` — how operators run your package.
+- `deploy_spec.md` — how operators run your package.
 - `validation.md` — the full validation ruleset.
