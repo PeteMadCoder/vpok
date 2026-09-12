@@ -47,7 +47,7 @@ flowchart TB
 
     subgraph GUEST["Guest VM"]
         direction TB
-        AGENT["vpok_agent<br/><br/>start · stop · report · mount data"]
+        AGENT["vpok-agent<br/><br/>start · stop · report · mount data"]
         APP["Application / service process"]
         AGENT --> APP
     end
@@ -65,7 +65,7 @@ User-facing CLI. Unprivileged. Talks to `vpokd` over a unix socket. Does not tou
 
 Host daemon. Owns the local store, the runtime backend, and the registry client. This is the only privileged component on the host. It should be small, auditable, and do nothing beyond what the CLI requests.
 
-### vpok_agent
+### vpok-agent
 
 Runs inside the guest. Responsibilities:
 

@@ -3,5 +3,5 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println("vpok_agent: not implemented")
+	fmt.Println("vpok-agent: not implemented")
 }

@@ -369,7 +369,7 @@ Audio forwarding is not supported in v1. `enabled = true` is a validation error.
 
 ## `[secrets]`
 
-Secrets injected into the guest at start time. Secrets are resolved by `vpokd` and delivered to `vpok_agent` over vsock. They are never written to disk in the local store and never appear in the manifest.
+Secrets injected into the guest at start time. Secrets are resolved by `vpokd` and delivered to `vpok-agent` over vsock. They are never written to disk in the local store and never appear in the manifest.
 
 | Field    | Type   | Required | Description                                                       |
 |----------|--------|----------|-------------------------------------------------------------------|
@@ -447,7 +447,7 @@ Shutdown behavior.
 |---------------|--------|----------|-------------------------------------------------------------------|
 | `gracePeriod` | string | no       | How long to wait after `SIGTERM` before `SIGKILL`. Defaults to `"10s"`. |
 
-The `SIGTERM` is sent to the entrypoint by `vpok_agent`. If the process does not exit within `gracePeriod`, it is killed.
+The `SIGTERM` is sent to the entrypoint by `vpok-agent`. If the process does not exit within `gracePeriod`, it is killed.
 
 ---
 

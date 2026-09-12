@@ -1,6 +1,6 @@
 /vpok
 /vpokd
-/vpok_agent
+/vpok-agent
 /dist/
 *.test
 *.out
