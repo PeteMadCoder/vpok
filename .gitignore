@@ -1,0 +1,6 @@
+/vpok
+/vpokd
+/vpok_agent
+/dist/
+*.test
+*.out
