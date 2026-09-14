@@ -479,7 +479,7 @@ Update behavior.
 
 ---
 
-## `[licence]` *optional*
+## `[license]` *optional*
 
 For commercial packages.
 
