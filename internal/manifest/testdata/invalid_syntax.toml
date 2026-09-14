@@ -1,0 +1,3 @@
+apiVersion = "vpok-io/v1"
+kind = "Deploy
+unclosed_string = true

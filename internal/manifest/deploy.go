@@ -67,7 +67,7 @@ type Network struct {
 }
 
 type NetworkAllow struct {
-	Host string `toml:"mode"`
+	Host string `toml:"host"`
 	CIDR string `toml:"cidr"`
 	Port int    `toml:"port"`
 }

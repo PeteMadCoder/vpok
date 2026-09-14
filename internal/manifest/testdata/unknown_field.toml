@@ -1,0 +1,14 @@
+apiVersion = "vpok.io/v1"
+kind = "Deploy"
+unexpectedTopLevelField = "invalid"
+
+[metadata]
+name = "hello"
+
+[package]
+source = "registry.vpok.io/example/hello"
+version = "0.1.0"
+
+[resources]
+memory = "64MiB"
+cpus = 1

@@ -1,0 +1,95 @@
+apiVersion = "vpok.io/v1"
+kind = "Deploy"
+
+[metadata]
+name = "image-tool"
+description = "Alice's image tool"
+
+[package]
+source = "registry.vpok.io/example/image-tool"
+version = "1.4.0"
+digest = "sha256:ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+
+[package.verify]
+signature = "required"
+publisher = "example.org"
+
+[resources]
+memory = "1GiB"
+cpus = 2
+pids = 256
+disk = "4GiB"
+
+[[storage]]
+name = "data"
+guestPath = "/var/lib/image-tool"
+type = "volume"
+size = "2GiB"
+persistent = true
+
+[[storage]]
+name = "pictures"
+guestPath = "/pictures"
+type = "hostPath"
+hostPath = "$HOME/Pictures"
+mode = "ro"
+
+[[storage]]
+name = "output"
+guestPath = "/output"
+type = "hostPath"
+hostPath = "$HOME/Pictures/Processed"
+mode = "rw"
+
+[network]
+mode = "nat"
+dns = ["1.1.1.1", "8.8.8.8"]
+
+[[network.allow]]
+host = "updates.example.org"
+port = 443
+
+[[network.allow]]
+cidr = "10.0.0.0/8"
+port = 5432
+
+[devices]
+webcam = false
+microphone = false
+gpu = false
+
+[display]
+enabled = false
+protocol = "wayland"
+
+[audio]
+enabled = false
+
+[[secrets]]
+name = "api-key"
+source = "env:IMAGE_TOOL_API_KEY"
+
+[env]
+LOG_LEVEL = "info"
+TZ = "Europe/Lisbon"
+
+[restart]
+policy = "on-failure"
+maxAttempts = 3
+backoff = "5s"
+
+[shutdown]
+gracePeriod = "10s"
+
+[[service.publish]]
+name = "http"
+hostPort = 8080
+
+[service.update]
+strategy = "recreate"
+rollbackOnFailure = true
+
+[license]
+document = "/etc/vpok/license.jwt"
+activation = "offline"
+server = "https://license.example.org"
