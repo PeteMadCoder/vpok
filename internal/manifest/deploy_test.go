@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestLoadMinimal(t *testing.T) {
-	spec, err := Load("testdata/minimal.toml")
+func TestLoadDeployMinimal(t *testing.T) {
+	spec, err := LoadDeploy("testdata/deploy_minimal.toml")
 	if err != nil {
 		t.Fatalf("expected no error loading minimal.toml, got: %v", err)
 	}
@@ -34,8 +34,8 @@ func TestLoadMinimal(t *testing.T) {
 	}
 }
 
-func TestLoadComplete(t *testing.T) {
-	spec, err := Load("testdata/complete.toml")
+func TestLoadDeployComplete(t *testing.T) {
+	spec, err := LoadDeploy("testdata/deploy_complete.toml")
 	if err != nil {
 		t.Fatalf("expected no error loading complete.toml, got: %v", err)
 	}
@@ -153,8 +153,8 @@ func TestLoadComplete(t *testing.T) {
 	}
 }
 
-func TestRejectUnknownFields(t *testing.T) {
-	_, err := Load("testdata/unknown_field.toml")
+func TestDeployRejectUnknownFields(t *testing.T) {
+	_, err := LoadDeploy("testdata/deploy_unknown_field.toml")
 	if err == nil {
 		t.Fatalf("expected error for unknown fields, got nil")
 	}
@@ -163,14 +163,14 @@ func TestRejectUnknownFields(t *testing.T) {
 	}
 }
 
-func TestInvalidSyntax(t *testing.T) {
-	_, err := Load("testdata/invalid_syntax.toml")
+func TestDeployInvalidSyntax(t *testing.T) {
+	_, err := LoadDeploy("testdata/deploy_invalid_syntax.toml")
 	if err == nil {
 		t.Fatalf("expected decode error for invalid syntax, got nil")
 	}
 }
 
-func TestLoadString(t *testing.T) {
+func TestLoadDeployString(t *testing.T) {
 	valid := `
 apiVersion = "vpok.io/v1"
 kind = "Deploy"
@@ -186,7 +186,7 @@ version = "1.0.0"
 memory = "128MiB"
 cpus = 1
 	`
-	spec, err := LoadString(valid)
+	spec, err := LoadDeployString(valid)
 	if err != nil {
 		t.Fatalf("expected name 'in-memory', got '%s'", spec.Metadata.Name)
 	}
@@ -196,7 +196,7 @@ apiVersion = "vpok.io/v1"
 kind = "Deploy"
 unknownKey = "reject-me"
 	`
-	_, err = LoadString(invalid)
+	_, err = LoadDeployString(invalid)
 	if err == nil {
 		t.Fatalf("expected error parsing string with unknown keys, got nil")
 	}
