@@ -1,0 +1,19 @@
+apiVersion = "vpok.io/v1"
+kind = "Build"
+
+[metadata]
+name = "hello"
+version = "0.1.0"
+publisher = "example.org"
+
+[base]
+distribution = "alpine"
+release = "3.20"
+architecture = "amd64"
+
+[entrypoint]
+command = ["/bin/echo", "hello"]
+
+[requires.resources]
+memory = "64MiB"
+cpus = 1

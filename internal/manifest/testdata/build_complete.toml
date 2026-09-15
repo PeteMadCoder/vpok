@@ -1,0 +1,81 @@
+apiVersion = "vpok.io/v1"
+kind = "Build"
+
+[metadata]
+name = "image-tool"
+version = "1.4.0"
+publisher = "example.org"
+description = "Image processing CLI"
+license = "Apache-2.0"
+homepage = "https://example.org/image-tool"
+
+[base]
+distribution = "alpine"
+release = "3.20"
+architecture = "amd64"
+
+[[build.steps]]
+action = "run"
+command = "apk add --no-cache imagemagick"
+
+[[build.steps]]
+action = "copy"
+from = "./bin/image-tool"
+to = "/opt/image-tool/bin/image-tool"
+mode = "0755"
+
+[[build.steps]]
+action = "run"
+command = "strip /opt/image-tool/bin/image-tool"
+
+[[build.steps]]
+action = "env"
+vars = { IMAGE_TOOL_HOME = "/opt/image-tool" }
+
+[entrypoint]
+command = ["/opt/image-tool/bin/image-tool"]
+workingDir = "/opt/image-tool"
+
+[requires.resources]
+memory = "512MiB"
+cpus = 1
+
+[[requires.dataDirs]]
+path = "/var/lib/image-tool"
+
+[requires.network]
+outbound = false
+
+[requires.devices]
+webcam = false
+microphone = false
+gpu = false
+
+[requires.display]
+enabled = false
+
+[requires.audio]
+enabled = false
+
+[service.health]
+type = "http"
+path = "/healthz"
+port = 8080
+interval = "10s"
+timeout = "2s"
+failures = 3
+
+[service.readiness]
+type = "http"
+path = "/ready"
+port = 8080
+interval = "5s"
+
+[[service.ports]]
+name = "http"
+containerPort = 8080
+protocol = "tcp"
+
+[reproducible]
+enabled = true
+sbom = true

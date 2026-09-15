@@ -132,7 +132,7 @@ func LoadBuild(path string) (*BuildSpec, error) {
 	}
 
 	if undecoded := md.Undecoded(); len(undecoded) > 0 {
-		return nil, fmt.Errorf("Unknown fields: %v", undecoded)
+		return nil, fmt.Errorf("unknown fields: %v", undecoded)
 	}
 
 	return &spec, nil
@@ -148,7 +148,7 @@ func LoadBuildString(data string) (*BuildSpec, error) {
 	}
 
 	if undecoded := md.Undecoded(); len(undecoded) > 0 {
-		return nil, fmt.Errorf("Unknown fields: %v", undecoded)
+		return nil, fmt.Errorf("unknown fields: %v", undecoded)
 	}
 
 	return &spec, nil
