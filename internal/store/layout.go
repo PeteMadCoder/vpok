@@ -17,7 +17,7 @@ func (l *Layout) BlobsDir() string {
 	return filepath.Join(l.Root, "blobs")
 }
 
-func (l *Layout) ManifestDir() string {
+func (l *Layout) ManifestsDir() string {
 	return filepath.Join(l.Root, "manifests")
 }
 
@@ -35,7 +35,7 @@ func (l *Layout) BlobPath(d Digest) (string, error) {
 
 func (l *Layout) ManifestPath(d Digest) (string, error) {
 	if err := d.Validate(); err != nil {
-		return "", nil
+		return "", err
 	}
 	h := d.Hex()
 	return filepath.Join(l.Root, "manifests", d.Algorithm(), h[:2], h[2:]), nil

@@ -9,6 +9,7 @@ import (
 	"hash"
 	"io"
 	"os"
+	"path/filepath"
 )
 
 type verifyingReadCloser struct {
@@ -58,6 +59,10 @@ func (s *CASStore) PutBlob(ctx context.Context, r io.Reader) (Digest, int64, err
 
 	if err := tmpFile.Sync(); err != nil {
 		tmpFile.Close()
+		return "", 0, fmt.Errorf("failed to sync temp blob: %w", err)
+	}
+
+	if err := tmpFile.Close(); err != nil {
 		return "", 0, fmt.Errorf("failed to close temp blob: %w", err)
 	}
 
@@ -65,6 +70,10 @@ func (s *CASStore) PutBlob(ctx context.Context, r io.Reader) (Digest, int64, err
 	destPath, err := s.layout.BlobPath(digest)
 	if err != nil {
 		return "", 0, err
+	}
+
+	if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+		return "", 0, fmt.Errorf("failed to create blob parent directory: %w", err)
 	}
 
 	if err := os.Rename(tmpPath, destPath); err != nil {
@@ -87,7 +96,7 @@ func (s *CASStore) GetBlob(ctx context.Context, d Digest) (io.ReadCloser, error)
 	file, err := os.Open(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return nil, ErrBlodNotFound
+			return nil, ErrBlobNotFound
 		}
 		return nil, fmt.Errorf("failed to open blob: %w", err)
 	}

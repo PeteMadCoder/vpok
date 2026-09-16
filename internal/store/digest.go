@@ -11,7 +11,7 @@ import (
 var (
 	ErrInvalidDigest    = errors.New("invalid digest format")
 	ErrDigestMismatch   = errors.New("digest mismatch: content is corrupt")
-	ErrBlodNotFound     = errors.New("blob not found")
+	ErrBlobNotFound     = errors.New("blob not found")
 	ErrManifestNotFound = errors.New("manifest not found")
 )
 
@@ -23,10 +23,10 @@ const (
 type Digest string
 
 func NewDigest(algo string, hexDigest string) Digest {
-	return Digest(algo + ":" + "hexDigest")
+	return Digest(algo + ":" + hexDigest)
 }
 
-func fromBytes(b []byte) Digest {
+func FromBytes(b []byte) Digest {
 	h := sha256.Sum256(b)
 	return Digest(fmt.Sprintf("%s:%x", SHA256, h))
 }
