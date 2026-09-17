@@ -2,6 +2,7 @@ package manifest
 
 import (
 	"crypto/ed25519"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -9,11 +10,20 @@ import (
 )
 
 var (
-	ErrNoSignatures      = errors.New("manigest has no signatures")
+	ErrNoSignatures      = errors.New("manifest has no signatures")
 	ErrSignatureNotFound = errors.New("no signature found matching the publisher")
-	ErrSignatureInvalid  = errors.New("manigest signature is invalid")
+	ErrSignatureInvalid  = errors.New("manifest signature is invalid")
 	ErrMissingPublisher  = errors.New("publisher name cannot be empty")
 )
+
+// GenerateKeyPair generates a new Ed25519 key pair for signing manifests.
+func GenerateKeyPair() (ed25519.PublicKey, ed25519.PrivateKey, error) {
+	pub, priv, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to generate ed25519 key: %w", err)
+	}
+	return pub, priv, nil
+}
 
 // SignManifest creates an Ed25519 signature of the canonical unsigned manifest
 // and appends the signature record to the manifest
@@ -63,7 +73,7 @@ func VerifyManifest(m *Manifest, publisher string, pubKey ed25519.PublicKey) err
 		return fmt.Errorf("failed to generate signing payload: %w", err)
 	}
 
-	expectedKeyID := hew.EncodeToString(pubKey)
+	expectedKeyID := hex.EncodeToString(pubKey)
 	foundPublisher := false
 
 	for _, sig := range m.Signatures {
@@ -94,12 +104,12 @@ func VerifyManifest(m *Manifest, publisher string, pubKey ed25519.PublicKey) err
 }
 
 // CanonicalDigest computes the content-addressed SHA-256 digest of the complete canonical manifest.
-func CannonicalDigest(m *Manifest) (string, error) {
+func CanonicalDigest(m *Manifest) (string, error) {
 	if m == nil {
 		return "", errors.New("manifest cannot be nil")
 	}
 
-	canonicalBytes, err := CannonicalJSON(m)
+	canonicalBytes, err := CanonicalJSON(m)
 	if err != nil {
 		return "", fmt.Errorf("failed to canonicalize manifest: %w", err)
 	}

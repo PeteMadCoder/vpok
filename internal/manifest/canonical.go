@@ -8,10 +8,10 @@ import (
 	"sort"
 )
 
-// Canonical JSON marshals any JSON-compatible value into RFC 8785 canonical JSON formal.
-// Proterties are lixicographically sorted by UTF-16 code unit representation,
+// CanonicalJSON marshals any JSON-compatible value into RFC 8785 canonical JSON format.
+// Properties are lexicographically sorted by UTF-16 code unit representation,
 // and all non-essential whitespace is omitted.
-func CannonicalJSON(v any) ([]byte, error) {
+func CanonicalJSON(v any) ([]byte, error) {
 	data, err := json.Marshal(v)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal value: %w", err)
@@ -43,7 +43,7 @@ func ManifestSigningPayload(m *Manifest) ([]byte, error) {
 	clone := *m
 	clone.Signatures = nil
 
-	return CannonicalJSON(&clone)
+	return CanonicalJSON(&clone)
 }
 
 func writeCanonical(buf *bytes.Buffer, v any) error {
