@@ -40,6 +40,10 @@ func FromReader(r io.Reader) (Digest, int64, error) {
 	return Digest(fmt.Sprintf("%s:%x", SHA256, h.Sum(nil))), n, nil
 }
 
+func (d Digest) String() string {
+	return string(d)
+}
+
 func (d Digest) Validate() error {
 	parts := strings.SplitN(string(d), ":", 2)
 	if len(parts) != 2 {

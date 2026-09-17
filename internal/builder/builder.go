@@ -17,6 +17,13 @@ type Builder struct {
 	PrivateKey ed25519.PrivateKey
 }
 
+func NewBuilder(s store.Store, privKey ed25519.PrivateKey) *Builder {
+	return &Builder{
+		Store:      s,
+		PrivateKey: privKey,
+	}
+}
+
 // Build compiles a BuildSpec and build context directory into a package stored in the CAS store.
 func (b *Builder) Build(ctx context.Context, spec *manifest.BuildSpec, contextDir string) (*manifest.Manifest, store.Digest, error) {
 	if err := manifest.ValidateBuild(spec); err != nil {
@@ -32,10 +39,10 @@ func (b *Builder) Build(ctx context.Context, spec *manifest.BuildSpec, contextDi
 	if spec.Reproducible != nil && spec.Reproducible.Enabled {
 		_, secondDigest, err := b.buildOnce(ctx, spec, contextDir)
 		if err != nil {
-			return nil, "", fmt.Errorf("reproducibility check second build failed: %w", &err)
+			return nil, "", fmt.Errorf("reproducibility check second build failed: %w", err)
 		}
 		if digest != secondDigest {
-			return nil, "", fmt.Errorf("reproducibility violation: build output non-deterministic (%s != %s)", digest, &secondDigest)
+			return nil, "", fmt.Errorf("reproducibility violation: build output non-deterministic (%s != %s)", digest, secondDigest)
 		}
 	}
 
