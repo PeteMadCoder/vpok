@@ -76,7 +76,7 @@ func getDefaultStorePath() string {
 // vpok keygen
 func runKeygen(args []string) error {
 	fs := flag.NewFlagSet("keygen", flag.ExitOnError)
-	outDir := fs.String("out", "", "Output directory for keys (default: ~/.vpok/keys")
+	outDir := fs.String("out", "", "Output directory for keys (default: ~/.vpok/keys)")
 	fs.Parse(args)
 
 	targetDir := *outDir
@@ -108,7 +108,7 @@ func runKeygen(args []string) error {
 		return fmt.Errorf("failed to write private key: %w", err)
 	}
 	if err := os.WriteFile(pubPath, []byte(pubHex+"\n"), 0644); err != nil {
-		return fmt.Errorf("failer to write public key: %w", err)
+		return fmt.Errorf("failed to write public key: %w", err)
 	}
 
 	fmt.Printf("Generated Ed25519 keypair:\n")
@@ -128,7 +128,7 @@ func runValidate(args []string) error {
 	// Fallback to positional argument if flags are not provided
 	if *buildFile == "" && *deployFile == "" {
 		if fs.NArg() == 0 {
-			return fmt.Errorf("please specify a file to validate using --build, --deploy, or as an argumment")
+			return fmt.Errorf("please specify a file to validate using --build, --deploy, or as an argument")
 		}
 		target := fs.Arg(0)
 		if strings.Contains(target, "deploy") {
@@ -220,7 +220,7 @@ func runBuild(args []string) error {
 			fmt.Printf("	Publisher: %s (Key ID: %s)\n", s.Publisher, s.KeyID)
 		}
 	} else {
-		fmt.Println("Warning: package was build without a signature (use --key to sign).")
+		fmt.Println("Warning: package was built without a signature (use --key to sign).")
 	}
 
 	return nil
@@ -233,7 +233,7 @@ func runInspect(args []string) error {
 	fs.Parse(args)
 
 	if fs.NArg() < 1 {
-		return fmt.Errorf("manigest digest required (e.g. vpok inspect sha256:...)")
+		return fmt.Errorf("manifest digest required (e.g. vpok inspect sha256:...)")
 	}
 
 	digestStr := fs.Arg(0)
