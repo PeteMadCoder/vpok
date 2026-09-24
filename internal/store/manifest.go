@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/PeteMadCoder/vpok/internal/manifest"
 )
@@ -95,4 +96,44 @@ func (s *CASStore) GetManifest(ctx context.Context, d Digest) (*manifest.Manifes
 	}
 
 	return &m, nil
+}
+
+func (s *CASStore) ListManifests(ctx context.Context) ([]Digest, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
+	var digests []Digest
+	baseDir := filepath.Join(s.layout.ManifestsDir(), SHA256)
+	if _, err := os.Stat(baseDir); os.IsNotExist(err) {
+		return digests, nil
+	}
+
+	err := filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		if !info.IsDir() {
+			rel, err := filepath.Rel(baseDir, path)
+			if err != nil {
+				return err
+			}
+			parts := strings.Split(rel, string(filepath.Separator))
+			if len(parts) == 2 {
+				dig := NewDigest(SHA256, parts[0]+parts[1])
+				if err := dig.Validate(); err == nil {
+					digests = append(digests, dig)
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to list manifests: %w", err)
+	}
+
+	return digests, nil
 }

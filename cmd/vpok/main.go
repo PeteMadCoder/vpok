@@ -12,11 +12,23 @@ import (
 	"strings"
 
 	"github.com/PeteMadCoder/vpok/internal/builder"
+	"github.com/PeteMadCoder/vpok/internal/client"
 	"github.com/PeteMadCoder/vpok/internal/manifest"
 	"github.com/PeteMadCoder/vpok/internal/store"
 )
 
 const defaultStoreDirName = ".vpok/store"
+
+func defaultSocketPath() string {
+	if custom := os.Getenv("VPOK_SOCKET"); custom != "" {
+		return custom
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "/tmp/vpokd.sock"
+	}
+	return filepath.Join(home, ".vpok", "vpokd.sock")
+}
 
 func main() {
 	if len(os.Args) < 2 {
@@ -253,5 +265,45 @@ func runInspect(args []string) error {
 	}
 
 	fmt.Println(string(formattedJSON))
+	return nil
+}
+
+func runPing(args []string) error {
+	fs := flag.NewFlagSet("ping", flag.ExitOnError)
+	socketPath := fs.String("socket", defaultSocketPath(), "Path to vpokd Unix socket")
+	fs.Parse(args)
+
+	c := client.New(*socketPath)
+	resp, err := c.Ping(context.Background())
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("vpokd is healthy\n")
+	fmt.Printf("	Version: %s\n", resp.Version)
+	fmt.Printf("    Uptime: %s\n", resp.Uptime)
+	return nil
+}
+
+func runListManifests(args []string) error {
+	fs := flag.NewFlagSet("manifests", flag.ExitOnError)
+	socketPath := fs.String("socket", defaultSocketPath(), "Path to vpokd Unix socket")
+	fs.Parse(args)
+
+	c := client.New(*socketPath)
+	list, err := c.ListManifests(context.Background())
+	if err != nil {
+		return err
+	}
+
+	if len(list) == 0 {
+		fmt.Println("No package manifests found in daemon store.")
+		return nil
+	}
+
+	fmt.Printf("%-20s %-10s %-20s %s\n", "NAME", "VERSION", "PUBLISHER", "DIGEST")
+	for _, item := range list {
+		fmt.Printf("%-20s %-10s %-20s %s\n", item.Name, item.Version, item.Publisher, item.Digest)
+	}
 	return nil
 }

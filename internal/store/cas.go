@@ -13,6 +13,7 @@ type Store interface {
 	HasBlob(ctx context.Context, d Digest) (bool, error)
 	PutManifest(ctx context.Context, m *manifest.Manifest) (Digest, error)
 	GetManifest(ctx context.Context, d Digest) (*manifest.Manifest, error)
+	ListManifests(ctx context.Context) ([]Digest, error)
 	GC(ctx context.Context, keep []Digest) error
 }
 
