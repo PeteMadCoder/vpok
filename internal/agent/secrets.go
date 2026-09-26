@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const DefaultSecretsDir = "/run/vopk/secrets"
+const DefaultSecretsDir = "/run/vpok/secrets"
 
 // SetupSecrets writes the provided secrets map to disk under secretsDir with mode 0400
 func SetupSecrets(secretsDir string, secrets map[string]string) error {

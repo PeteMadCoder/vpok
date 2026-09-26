@@ -121,13 +121,13 @@ func (h *HealthChecker) Start(ctx context.Context) {
 					if h.onState != nil {
 						h.onState(false, err)
 					}
-				} else {
-					if !h.status.Healthy || h.status.ConsecutiveFails > 0 {
-						h.status.Healthy = true
-						h.status.ConsecutiveFails = 0
-						if h.onState != nil {
-							h.onState(true, nil)
-						}
+				}
+			} else {
+				if !h.status.Healthy || h.status.ConsecutiveFails > 0 {
+					h.status.Healthy = true
+					h.status.ConsecutiveFails = 0
+					if h.onState != nil {
+						h.onState(true, nil)
 					}
 				}
 			}
