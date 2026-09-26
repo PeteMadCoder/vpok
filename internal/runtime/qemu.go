@@ -175,7 +175,7 @@ func (inst *QEMUInstance) BuildArgs() ([]string, error) {
 
 	// Check if KVM is available
 	if _, err := os.Stat("/dev/kvm"); err == nil {
-		args = append(args, "-enable-kvn", "-cpu", "host")
+		args = append(args, "-enable-kvm", "-cpu", "host")
 	} else {
 		args = append(args, "-cpu", "max")
 	}
@@ -193,7 +193,7 @@ func (inst *QEMUInstance) BuildArgs() ([]string, error) {
 
 	// Root drive
 	if cfg.RootDrive != nil {
-		driveArg := fmt.Sprintf("file=%s,if=virtio;format=%s", cfg.RootDrive.Path, cfg.RootDrive.Format)
+		driveArg := fmt.Sprintf("file=%s,if=virtio,format=%s", cfg.RootDrive.Path, cfg.RootDrive.Format)
 		if cfg.RootDrive.ReadOnly {
 			driveArg += ",readonly=on"
 		}
