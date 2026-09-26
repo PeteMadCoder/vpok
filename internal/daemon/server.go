@@ -170,7 +170,11 @@ func (s *Server) handleManifestByDigest(w http.ResponseWriter, r *http.Request) 
 	}
 
 	prefix := "/v1/manifests/"
-	digestStr := strings.TrimPrefix(r.URL.RawPath, prefix)
+	path := r.URL.Path
+	if path == "" {
+		path = r.URL.RawPath
+	}
+	digestStr := strings.TrimPrefix(path, prefix)
 	if digestStr == "" {
 		http.Error(w, "digest is required", http.StatusBadRequest)
 		return

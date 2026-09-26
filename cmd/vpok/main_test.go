@@ -281,3 +281,20 @@ cpus = 1
 	})
 }
 
+func TestRunPingAndManifests(t *testing.T) {
+	t.Run("ping failure when daemon not running", func(t *testing.T) {
+		err := runPing([]string{"-socket", "/tmp/non-existent-vpok-test.sock"})
+		if err == nil {
+			t.Error("expected error when pinging inactive daemon, got nil")
+		}
+	})
+
+	t.Run("manifests failure when daemon not running", func(t *testing.T) {
+		err := runListManifests([]string{"-socket", "/tmp/non-existent-vpok-test.sock"})
+		if err == nil {
+			t.Error("expected error when listing manifests from inactive daemon, got nil")
+		}
+	})
+}
+
+
