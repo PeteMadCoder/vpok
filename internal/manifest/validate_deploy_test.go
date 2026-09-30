@@ -331,3 +331,73 @@ func TestValidateCompatibility(t *testing.T) {
 		}
 	})
 }
+
+func TestValidateCompatibilityWithBuild(t *testing.T) {
+	build := &BuildSpec{
+		APIVersion: "vpok.io/v1",
+		Kind:       "Build",
+		Metadata: BuildMetadata{
+			Name:      "test-app",
+			Version:   "1.0.0",
+			Publisher: "example.org",
+		},
+		Base: Base{
+			Distribution: "alpine",
+			Release:      "3.20",
+			Architecture: "amd64",
+		},
+		EntryPoint: EntryPoint{
+			Command: []string{"/bin/echo", "test"},
+		},
+		Requires: Requires{
+			Resources: RequireResources{
+				Memory: "256MiB",
+				CPUs:   1,
+			},
+			DataDirs: []DataDirs{
+				{Path: "/var/lib/data"},
+			},
+			Network: RequireNetwork{
+				Outbound: true,
+			},
+		},
+	}
+
+	deploy := &DeploySpec{
+		APIVersion: "vpok.io/v1",
+		Kind:       "Deploy",
+		Metadata: DeployMetadata{
+			Name: "test-app-inst",
+		},
+		Package: DeployPackage{
+			Source:  "registry.vpok.io/test-app",
+			Version: "1.0.0",
+		},
+		Resources: DeployResources{
+			Memory: "512MiB",
+			CPUs:   2,
+		},
+		Storage: []DeployStorage{
+			{
+				Name:      "data",
+				GuestPath: "/var/lib/data",
+				Type:      "volume",
+				Size:      "1GiB",
+			},
+		},
+		Network: &DeployNetwork{
+			Mode: "nat",
+		},
+	}
+
+	if err := ValidateCompatibilityWithBuild(deploy, build); err != nil {
+		t.Fatalf("expected compatible build and deploy specs, got: %v", err)
+	}
+
+	// Test incompatibility failure
+	deploy.Resources.Memory = "128MiB"
+	if err := ValidateCompatibilityWithBuild(deploy, build); err == nil {
+		t.Fatal("expected error for insufficient memory, got nil")
+	}
+}
+

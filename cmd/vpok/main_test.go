@@ -161,7 +161,41 @@ cpus = 2
 			t.Error("expected error for missing arguments, got nil")
 		}
 	})
+
+	t.Run("valid compatibility between build and deploy files", func(t *testing.T) {
+		err := runValidate([]string{"--build", validBuildPath, "--deploy", validDeployPath})
+		if err != nil {
+			t.Errorf("expected compatibility validation success, got %v", err)
+		}
+	})
+
+	t.Run("incompatible resources between build and deploy files", func(t *testing.T) {
+		incompatibleDeploySpec := `apiVersion = "vpok.io/v1"
+kind = "Deploy"
+
+[metadata]
+name = "incompatible-deploy"
+
+[package]
+source = "example.com/test-pkg"
+version = "1.0.0"
+
+[resources]
+memory = "32MiB"
+cpus = 1
+`
+		incompatibleDeployPath := filepath.Join(tempDir, "incompatible.deploy.toml")
+		if err := os.WriteFile(incompatibleDeployPath, []byte(incompatibleDeploySpec), 0644); err != nil {
+			t.Fatalf("failed to write incompatible deploy spec: %v", err)
+		}
+
+		err := runValidate([]string{"--build", validBuildPath, "--deploy", incompatibleDeployPath})
+		if err == nil {
+			t.Error("expected error for insufficient memory grant, got nil")
+		}
+	})
 }
+
 
 func TestRunBuildAndInspect(t *testing.T) {
 	tempDir := t.TempDir()
