@@ -150,6 +150,9 @@ func runValidate(args []string) error {
 		}
 	}
 
+	var buildSpec *manifest.BuildSpec
+	var deploySpec *manifest.DeploySpec
+
 	if *buildFile != "" {
 		spec, err := manifest.LoadBuild(*buildFile)
 		if err != nil {
@@ -158,7 +161,7 @@ func runValidate(args []string) error {
 		if err := manifest.ValidateBuild(spec); err != nil {
 			return fmt.Errorf("build validation failed: %w", err)
 		}
-
+		buildSpec = spec
 		fmt.Printf("Build specification is valid: %s (package: %s:%s)\n", *buildFile, spec.Metadata.Name, spec.Metadata.Version)
 	}
 
@@ -170,7 +173,16 @@ func runValidate(args []string) error {
 		if err := manifest.ValidateDeploy(spec); err != nil {
 			return fmt.Errorf("deploy validation failed: %w", err)
 		}
+		deploySpec = spec
 		fmt.Printf("Deploy specification is valid: %s (target package: %s:%s)\n", *deployFile, spec.Metadata.Name, spec.Package.Version)
+	}
+
+	// Validate compatibility between deploy spec and build spec when both are supplied
+	if buildSpec != nil && deploySpec != nil {
+		if err := manifest.ValidateCompatibilityWithBuild(deploySpec, buildSpec); err != nil {
+			return fmt.Errorf("compatibility check failed: %w", err)
+		}
+		fmt.Println("Compatibility check succeeded: deploy specification satisfies all requirements.")
 	}
 
 	return nil

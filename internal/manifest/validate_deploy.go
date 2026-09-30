@@ -289,3 +289,29 @@ func ValidateCompatibility(deploy *DeploySpec, pkg *Manifest) error {
 
 	return nil
 }
+
+// ValidateCompatibilityWithBuild validates that a DeploySpec satisfies all requirements of a BuildSpec.
+func ValidateCompatibilityWithBuild(deploy *DeploySpec, build *BuildSpec) error {
+	if deploy == nil {
+		return errors.New("deploy spec cannot be nil")
+	}
+	if build == nil {
+		return errors.New("build spec cannot be nil")
+	}
+
+	if err := ValidateBuild(build); err != nil {
+		return fmt.Errorf("invalid build spec: %w", err)
+	}
+
+	syntheticManifest := &Manifest{
+		APIVersion: build.APIVersion,
+		Kind:       "Manifest",
+		Metadata:   build.Metadata,
+		Base:       build.Base,
+		EntryPoint: build.EntryPoint,
+		Requires:   build.Requires,
+		Service:    build.Service,
+	}
+
+	return ValidateCompatibility(deploy, syntheticManifest)
+}
