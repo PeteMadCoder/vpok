@@ -119,11 +119,30 @@ func Assemble(ctx context.Context, opts AssemblyOptions) (*AssemblyResult, error
 }
 
 func buildAgentConfig(m *manifest.Manifest, d *manifest.DeploySpec) *agent.Config {
+	var mounts []agent.VolumeMount
+	for i, s := range d.Storage {
+		mountTag := fmt.Sprintf("fsdev%d", i)
+		ro := (s.Mode == "ro")
+		opts := "trans=virtio,version=9p2000.L"
+		if ro {
+			opts += ",ro"
+		}
+		mounts = append(mounts, agent.VolumeMount{
+			Tag:       mountTag,
+			GuestPath: s.GuestPath,
+			FSType:    "9p",
+			Options:   opts,
+			ReadOnly:  ro,
+		})
+	}
+
 	cfg := &agent.Config{
+		Hostname:   d.Metadata.Name,
 		Entrypoint: m.EntryPoint.Command,
 		WorkingDir: m.EntryPoint.WorkingDir,
 		Env:        d.Env,
 		Secrets:    make(map[string]string),
+		Mounts:     mounts,
 	}
 
 	if d.Shutdown != nil && d.Shutdown.GracePeriod != "" {

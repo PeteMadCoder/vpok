@@ -17,12 +17,23 @@ type HealthCheckConfig struct {
 	Failures int    `json:"failures"`
 }
 
+// VolumeMount defines a filesystem mount inside the guest.
+type VolumeMount struct {
+	Tag       string `json:"tag,omitempty"`     // 9p mount tag or device name
+	GuestPath string `json:"guestPath"`         // Destination path in guest
+	FSType    string `json:"fsType,omitempty"`  // "9p", "ext4", "tmpfs"
+	Options   string `json:"options,omitempty"` // e.g. "trans=virtio,version=9p2000.L"
+	ReadOnly  bool   `json:"readOnly,omitempty"`
+}
+
 // Config represents the complete runtime payload passed to vpok-agent.
 type Config struct {
+	Hostname    string             `json:"hostname,omitempty"`
 	Entrypoint  []string           `json:"entrypoint"`
 	WorkingDir  string             `json:"workingDir,omitempty"`
 	Env         map[string]string  `json:"env,omitempty"`
 	Secrets     map[string]string  `json:"secrets,omitempty"` // Name -> Content
+	Mounts      []VolumeMount      `json:"mounts,omitempty"`
 	GracePeriod string             `json:"gracePeriod,omitempty"`
 	HealthCheck *HealthCheckConfig `json:"healthCheck,omitempty"`
 }

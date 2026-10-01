@@ -25,6 +25,14 @@ func main() {
 		log.Fatalf("failed to load configuration: %v", err)
 	}
 
+	// 0. If running as PID 1, initialize the guest environment
+	isPID1 := (os.Getpid() == 1)
+	if isPID1 {
+		if err := agent.InitGuest(cfg); err != nil {
+			log.Printf("warning: guest initialization encountered errors: %v", err)
+		}
+	}
+
 	// 1. Provision secrets to disk
 	if len(cfg.Secrets) > 0 {
 		if err := agent.SetupSecrets(*secretsDir, cfg.Secrets); err != nil {
@@ -58,6 +66,15 @@ func main() {
 		go checker.Start(ctx)
 	}
 
+	// Helper to exit or poweroff when running as PID 1
+	handleExit := func(code int) {
+		if isPID1 {
+			log.Printf("workload finished, powering off VM...")
+			agent.Poweroff()
+		}
+		os.Exit(code)
+	}
+
 	// 5. Wait for workload termination or incoming termination signal
 	select {
 	case sig := <-sigChan:
@@ -74,7 +91,7 @@ func main() {
 		if res.Err != nil {
 			log.Printf("process exit with error: %v (exit code %d)", res.Err, res.ExitCode)
 		}
-		os.Exit(res.ExitCode)
+		handleExit(res.ExitCode)
 	}
 
 }
