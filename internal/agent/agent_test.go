@@ -401,3 +401,69 @@ func TestHealthChecker_TCP(t *testing.T) {
 		t.Fatal("expected failure on closed TCP port, got nil")
 	}
 }
+
+func TestLoadConfig_WithMountsAndHostname(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "config.json")
+
+	raw := `{
+		"hostname": "test-vm",
+		"entrypoint": ["/bin/echo", "hello"],
+		"mounts": [
+			{
+				"tag": "fsdev0",
+				"guestPath": "/var/lib/data",
+				"fsType": "9p",
+				"options": "trans=virtio,version=9p2000.L",
+				"readOnly": false
+			},
+			{
+				"tag": "fsdev1",
+				"guestPath": "/pictures",
+				"fsType": "9p",
+				"options": "trans=virtio,version=9p2000.L,ro",
+				"readOnly": true
+			}
+		]
+	}`
+
+	if err := os.WriteFile(configPath, []byte(raw), 0644); err != nil {
+		t.Fatalf("failed to write config file: %v", err)
+	}
+
+	cfg, err := LoadConfig(configPath)
+	if err != nil {
+		t.Fatalf("LoadConfig failed: %v", err)
+	}
+
+	if cfg.Hostname != "test-vm" {
+		t.Errorf("expected hostname 'test-vm', got %q", cfg.Hostname)
+	}
+	if len(cfg.Mounts) != 2 {
+		t.Fatalf("expected 2 mounts, got %d", len(cfg.Mounts))
+	}
+	if cfg.Mounts[0].Tag != "fsdev0" || cfg.Mounts[0].GuestPath != "/var/lib/data" || cfg.Mounts[0].ReadOnly {
+		t.Errorf("unexpected mount[0]: %+v", cfg.Mounts[0])
+	}
+	if cfg.Mounts[1].Tag != "fsdev1" || cfg.Mounts[1].GuestPath != "/pictures" || !cfg.Mounts[1].ReadOnly {
+		t.Errorf("unexpected mount[1]: %+v", cfg.Mounts[1])
+	}
+}
+
+func TestInitGuest_Basic(t *testing.T) {
+	cfg := &Config{
+		Hostname:   "test-guest",
+		Entrypoint: []string{"/bin/true"},
+		Mounts: []VolumeMount{
+			{
+				Tag:       "nonexistent-tag",
+				GuestPath: filepath.Join(t.TempDir(), "mnt"),
+				FSType:    "9p",
+			},
+		},
+	}
+
+	// Should not panic or crash
+	_ = InitGuest(cfg)
+}
+

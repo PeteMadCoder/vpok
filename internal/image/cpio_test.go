@@ -93,7 +93,7 @@ func TestBuildInitrd_Reproducibility(t *testing.T) {
 	}
 	for i := 0; i < 5; i++ {
 		p := filepath.Join(rootfs, "data", fmt.Sprintf("file_%d.txt", i))
-		if err := os.WriteFile(p, []byte(fmt.Sprintf("content_%d\n", i)), 0644); err != nil {
+		if err := os.WriteFile(p, fmt.Appendf(nil, "content_%d\n", i), 0644); err != nil {
 			t.Fatalf("failed to write file: %v", err)
 		}
 	}

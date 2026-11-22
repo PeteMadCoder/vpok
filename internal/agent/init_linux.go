@@ -17,7 +17,7 @@ func InitGuest(cfg *Config) error {
 		_ = syscall.Sethostname([]byte(cfg.Hostname))
 	}
 
-	// 2. Mount declared volumes
+	// 2. Mount essential pseudofilesystems
 	if err := MountPseudofs(); err != nil {
 		return fmt.Errorf("failed to mount pseudofilesystems: %w", err)
 	}
