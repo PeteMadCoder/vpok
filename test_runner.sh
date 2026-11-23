@@ -280,8 +280,7 @@ else
 fi
 
 log_info "Building signed package into isolated CAS store..."
-BUILD_OUTPUT=$("${TEST_BIN_DIR}/vpok" build -f "$SAMPLE_BUILD_TOML" -C "$SAMPLE_CTX" --store "$TEST_STORE_DIR" --key
-"${TEST_KEYS_DIR}/publisher.key" 2>&1)
+BUILD_OUTPUT=$("${TEST_BIN_DIR}/vpok" build -f "$SAMPLE_BUILD_TOML" -C "$SAMPLE_CTX" --store "$TEST_STORE_DIR" --key "${TEST_KEYS_DIR}/publisher.key" 2>&1)
 echo "$BUILD_OUTPUT"
 
 MANIFEST_DIGEST=$(echo "$BUILD_OUTPUT" | grep "Manifest Digest:" | awk '{print $3}')
